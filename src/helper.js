@@ -1,3 +1,79 @@
+===============
+
+  // components/ui/DataRow.jsx - Keep this simple
+import React from 'react';
+
+export const DataRow = ({ label, value }) => (
+  <div className="flex justify-content-between mb-2">
+    <span className="text-700">{label}</span>
+    <span className="font-medium">{value || '-'}</span>
+  </div>
+);
+
+export const SectionHeader = ({ title }) => (
+  <h4 className="text-lg font-semibold mb-3 text-900">{title}</h4>
+);
+
+// Only create a table component if you have actual tabular data
+export const SimpleTable = ({ children }) => (
+  <table className="w-full mb-4 surface-border">
+    {children}
+  </table>
+);
+
+// components/product-details/PurposeTable.jsx - Simplified
+import React from 'react';
+import { SectionHeader } from '../ui/DataRow';
+
+const PurposeTable = ({ purpose }) => {
+  return (
+    <div className="mb-4">
+      <SectionHeader title="Loan Limits" />
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-bottom-1 surface-border">
+            <th className="text-left p-2 font-semibold">Purpose</th>
+            <th className="text-left p-2 font-semibold">Purchase</th>
+            <th className="text-left p-2 font-semibold">Remortgage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="p-2 text-700">LTV</td>
+            <td className="p-2">{purpose.ltvPur}</td>
+            <td className="p-2">{purpose.ltvRmg}</td>
+          </tr>
+          <tr>
+            <td className="p-2 text-700">FTB LTV</td>
+            <td className="p-2">{purpose.ltvMaxFtb}</td>
+            <td className="p-2">-</td>
+          </tr>
+          <tr>
+            <td className="p-2 text-700">Min Loan</td>
+            <td className="p-2">{purpose.loanMinPur}</td>
+            <td className="p-2">{purpose.loanMinRmg}</td>
+          </tr>
+          <tr>
+            <td className="p-2 text-700">Max Loan</td>
+            <td className="p-2">{purpose.loanMaxPur}</td>
+            <td className="p-2">{purpose.loanMaxRmg}</td>
+          </tr>
+          <tr>
+            <td className="p-2 text-700">FTB Max Loan</td>
+            <td className="p-2">{purpose.loanMaxFtb}</td>
+            <td className="p-2">-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default PurposeTable;
+
+  ============
+
+
 // utils/dataMappingUtils.js
 
 // Text mappings for specific fields
