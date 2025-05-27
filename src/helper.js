@@ -1,80 +1,76 @@
+// utils/dataMappingUtils.ts
 
-
-// Type definitions
+// Types
 type YesNoValue = 'Y' | 'N';
 type YesNoMaybeValue = 'Y' | 'N' | 'M';
 type YesNoReferOtherValue = 'Y' | 'N' | 'R' | 'O';
 
-interface TextMappings {
-  [key: string]: { [key: string]: string };
-}
-
 // Text mappings for specific fields
-const TEXT_MAPPINGS: TextMappings = {
-  'RateType': { 'F': 'Fixed', 'V': 'Variable', 'T': 'Tracker', 'D': 'Discount' },
-  'CapitalRest': { 'Y': 'Yes', 'N': 'No' },
-  'ValFeeFreeStatus': { 'F': 'Free', 'R': 'Refunded' },
-  'LegalFee': { 'F': 'Free', 'R': 'Refunded' },
-  'BorrowerType': { 'F': 'First Time Buyer', 'S': 'Second Time Buyer', 'E': 'Existing Customer' },
-  'BaseRateType': { 'Y': 'Yes', 'N': 'No', 'B': 'Base Rate', 'V': 'Variable', 'L': 'Libor' },
-  'EmplStatus': { 'P': 'Employed', 'S': 'Self Employed' }
-} as const;
+const TEXT_MAPPINGS: Record<string, Record<string, string>> = {
+  RateType: { F: 'Fixed', V: 'Variable', T: 'Tracker', D: 'Discount' },
+  CapitalRest: { Y: 'Yes', N: 'No' },
+  ValFeeFreeStatus: { F: 'Free', R: 'Refunded' },
+  LegalFee: { F: 'Free', R: 'Refunded' },
+  BorrowerType: { F: 'First Time Buyer', S: 'Second Time Buyer', E: 'Existing Customer' },
+  BaseRateType: { Y: 'Yes', N: 'No', B: 'Base Rate', V: 'Variable', L: 'Libor' },
+  EmplStatus: { P: 'Employed', S: 'Self Employed' }
+};
 
-// Yes/No field categories
-const YES_NO_FIELDS: readonly string[] = [
+// Field categories
+const YES_NO_FIELDS: string[] = [
   'flexibleMortgage', 'underPayments', 'paymentHolidays', 'borrowBack', 'portable', 
   'forBTL', 'forLTB', 'forResidential', 'forLtdCompany', 'forSelfBuild',
   'rightToBuy', 'sharedOwnership', 'newBuild', 'selfDeclared', 
   'legalFeeFreeReg', 'cashBackAvailable', 'unempRedundant',
   'availableByDirect', 'directOnly', 'interestOnlyAllowFTB',
   'h2BntGuarantee', 'h2EquityLoan', 'addressAboveMaxLTV', 'feesInterestCalcRepayBasis'
-] as const;
+];
 
-const YES_NO_MAYBE_FIELDS: readonly string[] = [
+const YES_NO_MAYBE_FIELDS: string[] = [
   'overPayments', 'offset', 'currentAccountLender'
-] as const;
+];
 
-const YES_NO_REFER_OTHER_FIELDS: readonly string[] = [
+const YES_NO_REFER_OTHER_FIELDS: string[] = [
   'forSelfBuild', 'rightToBuy', 'sharedOwnership', 'newBuild', 'h2BntGuarantee', 
   'h2EquityLoan', 'greenMortgage', 'familyAssistanTarget', 'rightTarget', 'firstBuyerTarget'
-] as const;
+];
 
 // Value mappings
-const YES_NO_MAPPING: Record<YesNoValue, string> = { 'Y': 'Yes', 'N': 'No' } as const;
-const YES_NO_MAYBE_MAPPING: Record<YesNoMaybeValue, string> = { 'Y': 'Yes', 'N': 'No', 'M': 'Maybe' } as const;
-const YES_NO_REFER_OTHER_MAPPING: Record<YesNoReferOtherValue, string> = { 'Y': 'Yes', 'N': 'No', 'R': 'Refer', 'O': 'Other' } as const;
+const YES_NO_MAPPING: Record<YesNoValue, string> = { Y: 'Yes', N: 'No' };
+const YES_NO_MAYBE_MAPPING: Record<YesNoMaybeValue, string> = { Y: 'Yes', N: 'No', M: 'Maybe' };
+const YES_NO_REFER_OTHER_MAPPING: Record<YesNoReferOtherValue, string> = { Y: 'Yes', N: 'No', R: 'Refer', O: 'Other' };
 
 /**
  * Maps field values based on predefined rules
  */
-export const mapFieldValue = (value: unknown, fieldName: string = ''): string => {
-  if (value === null || value === undefined) return '';
+export const mapFieldValue = (value: unknown, fieldName = ''): string => {
+  if (value == null) return '';
   
   const stringValue = String(value);
   
-  // Specific text mappings
+  // Check specific text mappings
   if (TEXT_MAPPINGS[fieldName]?.[stringValue]) {
     return TEXT_MAPPINGS[fieldName][stringValue];
   }
   
-  // Category-based mappings
-  if (YES_NO_FIELDS.includes(fieldName) && stringValue in YES_NO_MAPPING) {
-    return YES_NO_MAPPING[stringValue as YesNoValue];
+  // Check category-based mappings
+  if (YES_NO_FIELDS.includes(fieldName)) {
+    return YES_NO_MAPPING[stringValue as YesNoValue] || stringValue;
   }
   
-  if (YES_NO_MAYBE_FIELDS.includes(fieldName) && stringValue in YES_NO_MAYBE_MAPPING) {
-    return YES_NO_MAYBE_MAPPING[stringValue as YesNoMaybeValue];
+  if (YES_NO_MAYBE_FIELDS.includes(fieldName)) {
+    return YES_NO_MAYBE_MAPPING[stringValue as YesNoMaybeValue] || stringValue;
   }
   
-  if (YES_NO_REFER_OTHER_FIELDS.includes(fieldName) && stringValue in YES_NO_REFER_OTHER_MAPPING) {
-    return YES_NO_REFER_OTHER_MAPPING[stringValue as YesNoReferOtherValue];
+  if (YES_NO_REFER_OTHER_FIELDS.includes(fieldName)) {
+    return YES_NO_REFER_OTHER_MAPPING[stringValue as YesNoReferOtherValue] || stringValue;
   }
   
-  // Handle numeric strings for repayment types
+  // Handle numeric boolean values
   if (stringValue === '1') return 'Yes';
   if (stringValue === '0') return 'No';
   
-  // Handle "Set at Range Level"
+  // Handle special case
   if (stringValue.toLowerCase().includes('set at range level')) {
     return 'Set at Range Level';
   }
@@ -86,9 +82,9 @@ export const mapFieldValue = (value: unknown, fieldName: string = ''): string =>
  * Formats currency values in GBP
  */
 export const formatCurrency = (value: number | string | null | undefined): string => {
-  if (value === null || value === undefined) return '';
+  if (value == null) return '';
   
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  const numericValue = Number(value);
   if (isNaN(numericValue)) return '';
   if (numericValue === 0) return '£0';
   
@@ -104,13 +100,31 @@ export const formatCurrency = (value: number | string | null | undefined): strin
  * Formats percentage values
  */
 export const formatPercentage = (value: number | string | null | undefined): string => {
-  if (value === null || value === undefined) return '';
+  if (value == null) return '';
   
-  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  const numericValue = Number(value);
   if (isNaN(numericValue)) return '';
   if (numericValue === 0) return '0%';
   
   return `${numericValue}%`;
+};
+
+/**
+ * Safely accesses nested object properties
+ */
+export const safeGet = <T extends Record<string, any>>(
+  obj: T | null | undefined,
+  path: string,
+  defaultValue = ''
+): string => {
+  if (!obj || typeof obj !== 'object') return defaultValue;
+  
+  try {
+    const value = path.split('.').reduce((current: any, key: string) => current?.[key], obj);
+    return value != null ? String(value) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
 };
 
 ===============
