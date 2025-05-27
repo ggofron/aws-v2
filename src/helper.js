@@ -1,3 +1,118 @@
+
+
+// Type definitions
+type YesNoValue = 'Y' | 'N';
+type YesNoMaybeValue = 'Y' | 'N' | 'M';
+type YesNoReferOtherValue = 'Y' | 'N' | 'R' | 'O';
+
+interface TextMappings {
+  [key: string]: { [key: string]: string };
+}
+
+// Text mappings for specific fields
+const TEXT_MAPPINGS: TextMappings = {
+  'RateType': { 'F': 'Fixed', 'V': 'Variable', 'T': 'Tracker', 'D': 'Discount' },
+  'CapitalRest': { 'Y': 'Yes', 'N': 'No' },
+  'ValFeeFreeStatus': { 'F': 'Free', 'R': 'Refunded' },
+  'LegalFee': { 'F': 'Free', 'R': 'Refunded' },
+  'BorrowerType': { 'F': 'First Time Buyer', 'S': 'Second Time Buyer', 'E': 'Existing Customer' },
+  'BaseRateType': { 'Y': 'Yes', 'N': 'No', 'B': 'Base Rate', 'V': 'Variable', 'L': 'Libor' },
+  'EmplStatus': { 'P': 'Employed', 'S': 'Self Employed' }
+} as const;
+
+// Yes/No field categories
+const YES_NO_FIELDS: readonly string[] = [
+  'flexibleMortgage', 'underPayments', 'paymentHolidays', 'borrowBack', 'portable', 
+  'forBTL', 'forLTB', 'forResidential', 'forLtdCompany', 'forSelfBuild',
+  'rightToBuy', 'sharedOwnership', 'newBuild', 'selfDeclared', 
+  'legalFeeFreeReg', 'cashBackAvailable', 'unempRedundant',
+  'availableByDirect', 'directOnly', 'interestOnlyAllowFTB',
+  'h2BntGuarantee', 'h2EquityLoan', 'addressAboveMaxLTV', 'feesInterestCalcRepayBasis'
+] as const;
+
+const YES_NO_MAYBE_FIELDS: readonly string[] = [
+  'overPayments', 'offset', 'currentAccountLender'
+] as const;
+
+const YES_NO_REFER_OTHER_FIELDS: readonly string[] = [
+  'forSelfBuild', 'rightToBuy', 'sharedOwnership', 'newBuild', 'h2BntGuarantee', 
+  'h2EquityLoan', 'greenMortgage', 'familyAssistanTarget', 'rightTarget', 'firstBuyerTarget'
+] as const;
+
+// Value mappings
+const YES_NO_MAPPING: Record<YesNoValue, string> = { 'Y': 'Yes', 'N': 'No' } as const;
+const YES_NO_MAYBE_MAPPING: Record<YesNoMaybeValue, string> = { 'Y': 'Yes', 'N': 'No', 'M': 'Maybe' } as const;
+const YES_NO_REFER_OTHER_MAPPING: Record<YesNoReferOtherValue, string> = { 'Y': 'Yes', 'N': 'No', 'R': 'Refer', 'O': 'Other' } as const;
+
+/**
+ * Maps field values based on predefined rules
+ */
+export const mapFieldValue = (value: unknown, fieldName: string = ''): string => {
+  if (value === null || value === undefined) return '';
+  
+  const stringValue = String(value);
+  
+  // Specific text mappings
+  if (TEXT_MAPPINGS[fieldName]?.[stringValue]) {
+    return TEXT_MAPPINGS[fieldName][stringValue];
+  }
+  
+  // Category-based mappings
+  if (YES_NO_FIELDS.includes(fieldName) && stringValue in YES_NO_MAPPING) {
+    return YES_NO_MAPPING[stringValue as YesNoValue];
+  }
+  
+  if (YES_NO_MAYBE_FIELDS.includes(fieldName) && stringValue in YES_NO_MAYBE_MAPPING) {
+    return YES_NO_MAYBE_MAPPING[stringValue as YesNoMaybeValue];
+  }
+  
+  if (YES_NO_REFER_OTHER_FIELDS.includes(fieldName) && stringValue in YES_NO_REFER_OTHER_MAPPING) {
+    return YES_NO_REFER_OTHER_MAPPING[stringValue as YesNoReferOtherValue];
+  }
+  
+  // Handle numeric strings for repayment types
+  if (stringValue === '1') return 'Yes';
+  if (stringValue === '0') return 'No';
+  
+  // Handle "Set at Range Level"
+  if (stringValue.toLowerCase().includes('set at range level')) {
+    return 'Set at Range Level';
+  }
+  
+  return stringValue;
+};
+
+/**
+ * Formats currency values in GBP
+ */
+export const formatCurrency = (value: number | string | null | undefined): string => {
+  if (value === null || value === undefined) return '';
+  
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numericValue)) return '';
+  if (numericValue === 0) return '£0';
+  
+  return new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(numericValue);
+};
+
+/**
+ * Formats percentage values
+ */
+export const formatPercentage = (value: number | string | null | undefined): string => {
+  if (value === null || value === undefined) return '';
+  
+  const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numericValue)) return '';
+  if (numericValue === 0) return '0%';
+  
+  return `${numericValue}%`;
+};
+
 ===============
 
   // components/ui/DataRow.jsx - Keep this simple
