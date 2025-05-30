@@ -1,8 +1,4 @@
-# Product Data Solution - File Structure
-
-## File 1: `utils/dataMappingUtils.ts`
-
-```typescript
+// utils/dataMappingUtils.ts
 // Enhanced dataMappingUtils.ts with additional mapping functions
 
 export const mapFieldValue = (value: any, fieldType: string): string => {
@@ -37,13 +33,10 @@ export const formatYearsText = (value: number | null, label: string = 'Years'): 
 export const getRangeOrValue = (atProductLevel: boolean, value?: string): string => {
   return atProductLevel ? (value || '') : "Range Level Data";
 };
-```
 
----
+// ============================================================================
 
-## File 2: `utils/productTransforms.ts`
-
-```typescript
+// utils/productTransforms.ts
 import { 
   mapFieldValue, 
   getInterestOnlyAllowFTB, 
@@ -250,13 +243,10 @@ export const transformFeatures = (featuresData: {
     rateReducer: formatYesNo(featuresData.rateReducer)
   };
 };
-```
 
----
+// ============================================================================
 
-## File 3: `hooks/useProductData.ts`
-
-```typescript
+// hooks/useProductData.ts
 import { useMemo } from 'react';
 import { ProductDetails } from '../../types/product';
 import {
@@ -414,13 +404,10 @@ export const useProductData = (data: ProductDetails) => {
     };
   }, [data]);
 };
-```
 
----
+// ============================================================================
 
-## File 4: `utils/__tests__/productTransforms.test.ts` (Optional but recommended)
-
-```typescript
+// utils/__tests__/productTransforms.test.ts
 import {
   transformRates,
   transformDescriptions,
@@ -470,24 +457,11 @@ describe('Product Transforms', () => {
     });
   });
 });
-```
 
----
+// ============================================================================
 
-## Benefits of This Structure:
-
-1. **Separation of Concerns**: Each file has a clear responsibility
-2. **Reusability**: Transform functions can be used elsewhere
-3. **Testability**: Easy to unit test individual functions
-4. **Maintainability**: Changes are isolated to specific files
-5. **Type Safety**: Full TypeScript support throughout
-6. **Reduced Complexity**: Main hook has cognitive complexity < 5
-7. **Clean Imports**: Clear dependency structure
-
-## Usage in Components:
-
-```typescript
-// In your React component
+// Example usage in React component:
+/*
 import { useProductData } from '../hooks/useProductData';
 
 const ProductDetailsComponent = ({ productDetails }) => {
@@ -499,8 +473,8 @@ const ProductDetailsComponent = ({ productDetails }) => {
     <div>
       <RatesSection data={transformedData.rates} />
       <ApplicationSection data={transformedData.application} />
-      {/* etc. */}
+      <FeaturesSection data={transformedData.features} />
     </div>
   );
 };
-```
+*/
